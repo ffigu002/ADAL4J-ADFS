@@ -31,6 +31,11 @@
 			<td>identityProvider:</td>
 			<td>${userInfo.identityProvider}</td>
 		</tr>
+                <tr>
+			<td>More Claims?</td>
+			<td>${moreClaims}</td>
+		</tr>
+           
 	</table>
 	<br>
 	<form action="/adal4jsample">

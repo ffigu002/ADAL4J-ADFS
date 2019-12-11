@@ -63,7 +63,7 @@ public class BasicFilter implements Filter {
     public static final String FAILED_TO_VALIDATE_MESSAGE = "Failed to validate data received from Authorization service - ";
     private String clientId = "";
     private String clientSecret = "";
-    private String tenant = "";
+//    private String tenant = "";
     private String authority;
 
     public void destroy() {
@@ -242,7 +242,7 @@ public class BasicFilter implements Filter {
         ExecutorService service = null;
         try {
             service = Executors.newFixedThreadPool(1);
-            context = new AuthenticationContext(authority + tenant + "/", true,
+            context = new AuthenticationContext(authority + "/", false,
                     service);
             Future<AuthenticationResult> future = context
                     .acquireTokenByRefreshToken(refreshToken, new ClientCredential(clientId, clientSecret), null, null);
@@ -270,7 +270,7 @@ public class BasicFilter implements Filter {
         ExecutorService service = null;
         try {
             service = Executors.newFixedThreadPool(1);
-            context = new AuthenticationContext(authority + tenant + "/", true,
+            context = new AuthenticationContext(authority + "/", false,
                     service);
             Future<AuthenticationResult> future = context
                     .acquireTokenByAuthorizationCode(authCode, new URI(
@@ -299,22 +299,36 @@ public class BasicFilter implements Filter {
 
     private String getRedirectUrl(String currentUri, String state, String nonce)
             throws UnsupportedEncodingException {
-        String redirectUrl = authority
-                + this.tenant
-                + "/oauth2/authorize?response_type=code&scope=directory.read.all&response_mode=form_post&redirect_uri="
+    String redirectUrl = authority
+                + "/oauth2/authorize?response_type=code&scope=openid&response_mode=form_post&redirect_uri="
                 + URLEncoder.encode(currentUri, "UTF-8") + "&client_id="
-                + clientId + "&resource=https%3a%2f%2fgraph.microsoft.com"
+                + clientId
                 + "&state=" + state
                 + "&nonce=" + nonce;
-
         return redirectUrl;
+        
+//        String redirectUrl = authority
+//                + "/oauth2/authorize?response_type=id_token&scope=directory.read.all&response_mode=form_post&redirect_uri="
+//                + URLEncoder.encode(currentUri, "UTF-8") + "&client_id="
+//                + clientId 
+//                + "&state=" + state
+//                + "&nonce=" + nonce;
+//
+//        return redirectUrl;
     }
 
     public void init(FilterConfig config) throws ServletException {
+        try{
+        SSLTool.disableCertificateValidation();
+        
         clientId = config.getInitParameter("client_id");
         authority = config.getServletContext().getInitParameter("authority");
-        tenant = config.getServletContext().getInitParameter("tenant");
+//        tenant = config.getServletContext().getInitParameter("tenant");
         clientSecret = config.getInitParameter("secret_key");
+        }
+        catch(Exception ex){
+             throw new ServletException(FAILED_TO_VALIDATE_MESSAGE + "Unable to disable SSL Certificate Check");
+        }
     }
 
     private class StateData {
