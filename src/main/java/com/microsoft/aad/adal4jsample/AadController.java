@@ -53,11 +53,12 @@ public class AadController {
         } else {
             String data;
             try {
-                String tenant = session.getServletContext().getInitParameter("tenant");
-                data = getUsernamesFromGraph(result.getAccessToken(), tenant);
+                String tenant = session.getServletContext().getInitParameter("authority");
+               data = getUsernamesFromGraph(result.getAccessToken(), tenant);
                 model.addAttribute("tenant", tenant);
                 model.addAttribute("users", data);
                 model.addAttribute("userInfo", result.getUserInfo());
+                model.addAttribute("moreClaims", result.getIdToken());
             } catch (Exception e) {
                 model.addAttribute("error", e);
                 return "/error";
@@ -69,31 +70,32 @@ public class AadController {
     private String getUsernamesFromGraph(String accessToken, String tenant) throws Exception {
 
 
-        URL url = new URL("https://graph.microsoft.com/v1.0/users");
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        conn.setRequestMethod("GET");
-        conn.setRequestProperty("Authorization", "Bearer " + accessToken);
-        conn.setRequestProperty("Accept","application/json");
-        int httpResponseCode = conn.getResponseCode();
-
-        String goodRespStr = HttpClientHelper.getResponseStringFromConn(conn, true);
-        // logger.info("goodRespStr ->" + goodRespStr);
-        int responseCode = conn.getResponseCode();
-        JSONObject response = HttpClientHelper.processGoodRespStr(responseCode, goodRespStr);
-        JSONArray users;
-
-        users = JSONHelper.fetchDirectoryObjectJSONArray(response);
-
-        StringBuilder builder = new StringBuilder();
-        User user;
-        for (int i = 0; i < users.length(); i++) {
-            JSONObject thisUserJSONObject = users.optJSONObject(i);
-            user = new User();
-            JSONHelper.convertJSONObjectToDirectoryObject(thisUserJSONObject, user);
-            builder.append(user.getUserPrincipalName() + "<br/>");
-        }
-        return builder.toString();
+//        URL url = new URL("https://graph.microsoft.com/v1.0/users");
+//        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//
+//        conn.setRequestMethod("GET");
+//        conn.setRequestProperty("Authorization", "Bearer " + accessToken);
+//        conn.setRequestProperty("Accept","application/json");
+//        int httpResponseCode = conn.getResponseCode();
+//
+//        String goodRespStr = HttpClientHelper.getResponseStringFromConn(conn, true);
+//        // logger.info("goodRespStr ->" + goodRespStr);
+//        int responseCode = conn.getResponseCode();
+//        JSONObject response = HttpClientHelper.processGoodRespStr(responseCode, goodRespStr);
+//        JSONArray users;
+//
+//        users = JSONHelper.fetchDirectoryObjectJSONArray(response);
+//
+//        StringBuilder builder = new StringBuilder();
+//        User user;
+//        for (int i = 0; i < users.length(); i++) {
+//            JSONObject thisUserJSONObject = users.optJSONObject(i);
+//            user = new User();
+//            JSONHelper.convertJSONObjectToDirectoryObject(thisUserJSONObject, user);
+//            builder.append(user.getUserPrincipalName() + "<br/>");
+//        }
+//        return builder.toString();
+return "empty";
     }
 
 }
